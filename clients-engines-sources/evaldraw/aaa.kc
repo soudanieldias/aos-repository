@@ -1,0 +1,19 @@
+cls(0);
+clz(1e32);
+setcol(0xffffff);
+drawspr("caco.kv6",0,0,4,1,0,0);
+
+setcol(0xffff32);
+x=0;
+
+
+   moveto(260,380,600);
+   sleep(5000);
+   printf("AAAAA");   
+//   while (x=380; x<480; x++)
+//   {
+//      moveto(260,x,600);
+//      printf("Codigo Escrito por: Daniel Dias!");
+//     //x=x+10;
+//   }
+

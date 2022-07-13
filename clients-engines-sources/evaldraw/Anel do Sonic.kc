@@ -1,0 +1,25 @@
+/*
+Algoritmo de Representacao em 3D - Anel do Sonic
+
+
+*/
+
+(x,y)               //Variaveis em Uso
+
+y = x^2+y^2-2x*y;   //Plano Cartesiano do Cilindro
+
+setcol(10, 220, 220);
+
+y^2+y+1;            //Dimensao do Anel
+
+refresh();         //Atualizacao de Screen
+
+setcol(255, 255, 255);
+//setfont(50,80,1);
+moveto(250,350,300);
+printf("Teste!");
+//y+y;
+
+//y^3+y^2;
+
+//return 1;

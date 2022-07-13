@@ -1,0 +1,4 @@
+name = 'Island'
+version = '1.0'
+author = 'Izzy'
+description = ('A long, narrow island surrounded by some boats and tiny islands')

@@ -1,0 +1,163 @@
+static yearlut[28] = {13,1,2,3,11,6,7,1,9,4,5,6,14,2,3,4,12,7,1,2,10,5,6,7,8,3,4,5};
+static monthday[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
+static presy, presm, presd;
+
+()
+{
+   static omousx, omousy, obstatus;
+   presy = klock(2); presm = klock(3); presd = klock(5);
+   curym = presy*12+presm-1; offx = 0;
+   tim = klock();
+   while (1)
+   {
+      otim = tim; tim = klock(); dtim = tim-otim;
+      f = dtim;
+      if (keystatus[0x2a]) f *= 1/4; //LShift
+      if (keystatus[0x36]) f *= 4/1; //RShift
+      if (keystatus[0xcb]) { offx -= f*2*12*23; if (offx    < 0) { offx += 600; curym -= 12; }}
+      if (keystatus[0xcd]) { offx += f*2*12*23; if (offx >= 600) { offx -= 600; curym += 12; }}
+      if (keystatus[0xc8]) curym -= f*2; //UP
+      if (keystatus[0xd0]) curym += f*2; //DN
+      if (keystatus[0xc9]) { keystatus[0xc9] = 0; curym -= 12; } //PGUP
+      if (keystatus[0xd1]) { keystatus[0xd1] = 0; curym += 12; } //PGDN
+      if (keystatus[0x35]) { curym = presy*12+presm-1; offx = 0; } // /
+      if (curym < 1902*12) curym += 12;
+      if (curym > 2097*12) curym -= 12;
+      if (bstatus)
+      {
+         offx -= (mousx-omousx);
+         if (offx <    0) { offx += 600; curym -= 12; }
+         if (offx >= 600) { offx -= 600; curym += 12; }
+         curym -= (mousy-omousy)/(12*23);
+      }
+      
+      cls(0);
+      i = floor(curym); jd = -1e32;
+      for(x=floor(xres/600)+1;x>=0;x--)
+      {
+         for(y=i+floor(yres/(12*23))+1;y>=i;y--)
+            { jd = max(jd,printmonth(x*600-offx,(y-i-(curym%1))*(12*23),y+x*12)); }
+         setcol(0x708090); drawcone(x*600-offx-45,0,2,x*600-offx-45,yres,2);
+      }
+      setcol(0x708090); y = ((-curym)%12)*(12*23)-12; drawcone(x,y,2,xres,y,2);
+      
+         //http://www.nr.com/julian.html
+      moveto(xres-160,0); setcol(0xffffff);
+      //printf("%.0f\n",getjulianday(presy,presm,presd));
+      if (jd >= 0) printf("Julian Day %.0f\n",jd);
+
+      omousx = mousx; omousy = mousy; obstatus = bstatus; refresh(); Sleep(5);
+   }
+}
+
+printmonth (x0, y0, curym)
+{
+   cury = int(curym/12);
+   curm = curym-cury*12+1;
+   
+   setcol(0xc0c0c0); setfont(8,12); moveto(x0,y0);
+   printf("\t\t\t\t\t\t\t\t ");
+   if (curm == 1) printf(" JANUARY");
+   if (curm == 2) printf("FEBRUARY");
+   if (curm == 3) printf("  MARCH");
+   if (curm == 4) printf("  APRIL");
+   if (curm == 5) printf("   MAY");
+   if (curm == 6) printf("  JUNE");
+   if (curm == 7) printf("  JULY");
+   if (curm == 8) printf(" AUGUST");
+   if (curm == 9) printf("SEPTEMBER");
+   if (curm ==10) printf(" OCTOBER");
+   if (curm ==11) printf("NOVEMBER");
+   if (curm ==12) printf("DECEMBER");
+   printf(" %g\n",cury);
+   printf("ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿\n³");
+   for(i=0;i<7;i++)
+   {
+      if ((i < 3) || (i == 5)) { setfont(7,12); printf(" "); setfont(8,12); }
+      if (i == 0) { printf("S"); setfont(7,12); printf("UNDAY  "); }
+      if (i == 1) { printf("M"); setfont(7,12); printf("ONDAY  "); }
+      if (i == 2) { printf("T"); setfont(7,12); printf("UESDAY "); }
+      if (i == 3) { printf("W"); setfont(7,12); printf("EDNESDAY"); }
+      if (i == 4) { printf("T"); setfont(7,12); printf("HURSDAY "); }
+      if (i == 5) { printf("F"); setfont(7,12); printf("RIDAY  "); }
+      if (i == 6) { printf("S"); setfont(7,12); printf("ATURDAY "); }
+      setfont(8,12); printf("³");
+   }   
+   printf("\n");
+   
+   sy = y0+12*3.5;
+   leap = ((cury%4) == 0) && ((cury%100) || ((cury%400) == 0));
+   d = ((yearlut[cury%28] + monthday[curm-1] + ((curm>2)&&leap) - 1)%7)+1;
+   
+   c = 1; retj = -1e32;
+   while (1)
+   {
+      sx = x0+4;
+      printf("ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´\n");
+      printf("³        ³        ³        ³        ³        ³        ³        ³\n");
+      printf("³");
+      for(e=d;e>1;e--) { printf("        ³"); sx += 9*8; }
+redo: 
+         //US federal holidays:
+      if ((curm == 1) && (c == 1)) { printf("NEW YEAR"); goto skip; }
+      if ((curm == 1) && (d == 2) && (c >= 15) && (c < 22)) { printf("\h  MLK  \h"); goto skip; }
+      if ((curm == 1) && (c == 20)) { printf("INAUGUR."); goto skip; } //not official holiday?
+      if ((curm == 2) && (d == 2) && (c >= 15) && (c < 22)) { printf("WASHBDAY"); goto skip; }
+      if ((curm == 5) && (d == 2) && (c >= 25)) { printf("MEMORIAL"); goto skip; }
+      if ((curm == 7) && (c == 4)) { printf("INDEPEND"); goto skip; }
+      if ((curm == 9) && (d == 2) && (c < 8)) { printf("\h LABOR \h"); goto skip; }
+      if ((curm == 10) && (d == 2) && (c >= 8) && (c < 15)) { printf("COLUMBUS"); goto skip; }
+      if ((curm == 11) && (c == 11)) { printf("VETERANS"); goto skip; }
+      if ((curm == 11) && (d == 5) && (c >= 22) && (c < 29)) { printf(" THANKS "); goto skip; }
+      if ((curm == 11) && (d == 6) && (c >= 23) && (c < 30)) { printf(" GIVING "); goto skip; }
+      if ((curm == 12) && (c == 25)) { printf("  XMAS  "); goto skip; }
+      
+         //RI holidays:
+      if ((curm == 8) && (d == 2) && (c >= 8) && (c < 15)) { printf("\hVICTORY\h"); goto skip; }
+      //if ((!(cury%4))&&(curm==11)&&(d==3)&&(c>=2)&&(c<9)) { printf("ELECTION"); goto skip; }
+      //if ((curm == 5) && (c == 4)) { printf("RI INDEP"); goto skip; } //WTF is this?
+         
+         //Fake holidays:
+      if ((curm == 2) && (c == 14)) { printf("VALENTIN"); goto skip; }
+      if ((curm == 5) && (d == 1) && (c >= 8) && (c < 15)) { printf(" MOTHER "); goto skip; }
+      if ((curm == 6) && (d == 1) && (c >= 15) && (c < 22)) { printf(" FATHER "); goto skip; }
+      if ((curm == 10) && (c == 31)) { printf("HALLOWEE"); goto skip; }
+
+      if ((c == presd) && (curm == presm) && (cury == presy))
+         { setcol(0xffff00); printf(" TODAY! "); setcol(0xc0c0c0); goto skip; }
+      printf("   %2g   ",c);
+skip: printf("³");
+      if ((mousx >= sx) && (mousx < sx+9*8) && (mousy >= sy) && (mousy < sy+12*3))
+      {
+         retj = getjulianday(cury,curm,c);
+         drawsph(sx+35,sy+22,-12);
+      }
+      c++; d++; sx += 9*8;
+      if (((curm == 4) || (curm == 6) || (curm == 9) || (curm == 11)) && (c > 30)) break;
+      if ((curm == 2) && (c > leap+28)) break;
+      if (c > 31) break;
+      if (d < 8) goto redo;
+      d = 1; printf("\n"); sy += 12*3;
+   }
+   for(e=8-d;e>0;e--) printf("        ³");
+   printf("\nÀÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ");
+   return(retj);
+}
+
+getjulianday (year, month, day)
+{
+   d = (year-1)*365 + int((year-1)/4) - int((year-1)/100) + int((year-1)/400);
+   if (month > 1) d += 31;
+   if (month > 2) { d += 29; if ((year%4) || ((!(year%100)) && (year%400))) d--; }
+   if (month > 3) d += 31;
+   if (month > 4) d += 30;
+   if (month > 5) d += 31;
+   if (month > 6) d += 30;
+   if (month > 7) d += 31;
+   if (month > 8) d += 31;
+   if (month > 9) d += 30;
+   if (month >10) d += 31;
+   if (month >11) d += 30;
+   if (month >12) d += 31;
+   return(d+(day-1)+1721426);
+}

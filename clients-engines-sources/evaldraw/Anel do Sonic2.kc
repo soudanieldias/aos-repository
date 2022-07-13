@@ -1,0 +1,8 @@
+3f5bd8:d9 ee                      fldz 
+3f5bda:dd 44 24 0c                fld qword ptr [esp+12]
+3f5bde:dc 4c 24 04                fmul qword ptr [esp+4]
+3f5be2:dd c1                      ffree st(1)
+3f5be4:c3                         ret 
+3f5be5:0f 0b                      ud2 
+3f5be8:7d 4b                      jge +75
+32 bytes

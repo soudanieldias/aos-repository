@@ -1,0 +1,12 @@
+name = 'Nuketown'
+version = '1.0'
+author = 'TDM MODDED'
+description = ('[Brasil] Ace of Spades TDM MODIFIED')
+
+def get_entity_location(team, entity_id):
+    if entity_id == BLUE_BASE:
+        x, y, z = 197, 256, 59
+        return (x, y, z)
+    if entity_id == GREEN_BASE:
+        x, y, z = 300, 264, 59
+        return (x, y, z)

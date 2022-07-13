@@ -1,0 +1,30 @@
+//(x,y) //press F1 for help
+//x*y   //press ALT/ESC for menu
+
+cls();
+
+setcol(255,255,255);
+
+moveto(300,300,300);
+
+//printf("X:300; Y:300");
+//lineto(300,300);
+//lineto(300,400);
+//printf("X:300; Y:400");
+//lineto(200,400);
+//printf("X:200; Y:400");
+//lineto(200,300);
+//printf("X:200; Y:300");
+//lineto(300,300);
+
+LIM = 300;
+
+   for (x=0; x<LIM;)
+   { 
+      for (y=0; y<LIM;)
+      {
+         lineto(x,y);
+         x=x+100;
+         y=y-1;
+      }
+   }

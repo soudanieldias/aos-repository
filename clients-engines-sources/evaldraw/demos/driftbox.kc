@@ -1,0 +1,45 @@
+   //Instructions: turn off the grid and stare at the happy face.
+   //The offset square is NOT moving relative to the background!
+(x,y,t,&r,&g,&b) //Inspired from http://eyetricks.com/1304.htm
+if (t != glob[0])
+{
+   glob[0] = t; u = (t%4)*PI; v = cos(u)*6;
+        if (u < PI  ) { glob[1] = v; glob[2] = 6; }
+   else if (u < PI*2) { glob[1] =-6; glob[2] =-v; }
+   else if (u < PI*3) { glob[1] =-v; glob[2] =-6; }
+   else               { glob[1] = 6; glob[2] = v; }
+   u = t*2; v = (cos(u*1.7)*.25+1)*.21;
+   glob[3] = cos(u)*v;
+   glob[4] = sin(u)*v;
+   glob[5] = glob[3]+glob[4];
+   glob[6] = glob[4]-glob[3]; glob[7] = cos(u*2.3)/48+.08;
+}
+
+   //A distraction for the eyes to focus on :)
+ix = x-glob[5]; iy = y-glob[6]; d = ix^2+iy^2;
+if (d < .20)
+{
+   r = 255-d*512; g = r; b = 64; d = abs(d-glob[7]);
+   if ((d < .025) && (ix*glob[5] > iy*glob[6])) m = d/.025; else m = 1;
+   d = (ix+glob[3])^2+(iy-glob[4])^2; if (d < .005) m *= d/.005; 
+   d = (ix+glob[4])^2+(iy+glob[3])^2; if (d < .005) m *= d/.005;
+   r *= m; g *= m; return(0);
+}
+
+x = x*6+glob[1]; y = y*6+glob[2];
+//if ((abs(x) < 10) && (abs(y) < 10)) x += glob[2]/16, y += glob[1]/16;
+ix = fadd(x,3*2^51)-3*2^51; //ix = floor(x+.5);
+iy = fadd(y,3*2^51)-3*2^51; //iy = floor(y+.5);
+if ((abs(x) < 10) && (abs(y) < 10)) i = iy-ix; else i = ix+iy;
+i = i-(fadd(i,3*2^53)-3*2^53); //i = (i+2)%4-2;
+r = 224; g = abs(i)*80+64; b = 64;
+if ((ix-x)^2+(iy-y)^2 > 0.32)
+{
+   jx = ix - (x < ix);
+   jy = iy - (y < iy);
+   if ((abs(x) < 10) && (abs(y) < 10)) i = 1-jx+jy; else i = 2+jx+jy;
+   i = i-(fadd(i,3*2^53)-3*2^53); //i = (i+2)%4-2;
+   if (i == 1) { r = 255; g = 255; b = 255; return(0); }
+   if (i ==-1) { r = 0; g = 0; b = 0; return(0); }
+}
+0
